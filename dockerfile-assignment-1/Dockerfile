@@ -16,7 +16,7 @@
 
 # Instructions from the app developer
 # - you should use the 'node' official image, with the alpine 6.x branch (node:6-alpine)
-  #  yes this is a 2-year old image of node, but all official images are always
+  #  yes this is a 2-year old/ image of node, but all official images are always
   #  available on Docker Hub forever, to ensure even old apps still work.
   #  It is common to still need to deploy old app versions, even years later.
 # - this app listens on port 3000, but the container should launch on port 80
@@ -38,3 +38,19 @@
 # Node Docker Good Defaults sample project on GitHub to change this Dockerfile for 
 # better local development with more advanced topics
 # https://github.com/BretFisher/node-docker-good-defaults
+
+FROM node:6-alpine
+
+RUN apk add --update tini && mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+COPY package.json package.json
+RUN npm install
+RUN npm cache clean --force
+COPY app.js app.js
+COPY bin bin
+COPY public public
+COPY routes routes
+COPY views views
+
+EXPOSE 3000
+CMD ["/sbin/tini","--","node","./bin/www"]
